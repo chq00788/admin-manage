@@ -154,7 +154,6 @@ public class UserController {
         return response;
     }
 
-
     @ApiOperation(value = "查询用户菜单权限信息", notes = "查询用户菜单权限信息", httpMethod = "GET")
     @RequestMapping(value = "/getMenuListByUser")
     public Response<List<PermissionModel>> getMenuListByUser(String username) {
