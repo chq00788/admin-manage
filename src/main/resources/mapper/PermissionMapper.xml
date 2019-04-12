@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chq.project.admin.system.dao.PermissionDao">
+
+    <sql id="baseColumn">
+        id,
+        perm_name,
+        perm_code,
+        perm_type,
+        perm_url,
+        perm_sort,
+        perm_pid,
+        perm_icon,
+        is_usable,
+        is_delete
+    </sql>
+
+    <resultMap id="baseResultMap" type="com.chq.project.admin.system.model.PermissionModel">
+        <id property="id" column="id"/>
+        <result property="permName" column="perm_name"/>
+        <result property="permCode" column="perm_code"/>
+        <result property="permType" column="perm_type"/>
+        <result property="permUrl" column="perm_url"/>
+        <result property="permSort" column="perm_sort"/>
+        <result property="permPid" column="perm_pid"/>
+        <result property="permIcon" column="perm_icon"/>
+        <result property="isUsable" column="is_usable"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <sql id="selectiveWhere">
+        <where>
+
+        </where>
+    </sql>
+
+
+    <select id="selectList" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_permission
+        <include refid="selectiveWhere"/>
+        ORDER BY ${sortCode} ${sortRole}
+    </select>
+
+    <select id="findAll" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_permission
+        where is_usable = 1
+        and is_delete = 0
+    </select>
+
+    <insert id="insert" parameterType="com.chq.project.admin.system.model.PermissionModel">
+        INSERT INTO t_system_permission(
+            perm_name,
+            perm_code,
+            perm_type,
+            perm_url,
+            perm_sort,
+            perm_pid,
+            perm_icon,
+            is_usable,
+            is_delete
+        )VALUES(
+            #{permName},
+            #{permCode},
+            #{permType},
+            #{permUrl},
+            #{permSort},
+            #{permPid},
+            #{permIcon}
+            #{isUsable},
+            #{isDelete}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.chq.project.admin.system.model.PermissionModel">
+        UPDATE t_system_permission
+        <set>
+            <if test="permName != null and permName !=''  ">
+                perm_name = #{permName},
+            </if>
+            <if test="permCode != null and permCode !=''  ">
+                perm_code = #{permCode},
+            </if>
+            <if test="permType != null and permType !=''  ">
+                perm_type = #{permType},
+            </if>
+            <if test="permUrl != null and permUrl !=''  ">
+                perm_url = #{permUrl},
+            </if>
+            <if test="permSort != null and permSort !=''  ">
+                perm_sort = #{permSort},
+            </if>
+            <if test="permPid != null and permPid !=''  ">
+                perm_pid = #{permPid},
+            </if>
+            <if test="permIcon != null and permIcon !=''  ">
+                perm_icon = #{permIcon},
+            </if>
+            <if test="isUsable != null and isUsable !=''  ">
+                is_usable = #{isUsable},
+            </if>
+            <if test="isDelete != null and isDelete !=''  ">
+                is_delete = #{isDelete},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="integer">
+        DELETE FROM t_system_permission
+        WHERE id = #{id}
+    </delete>
+
+    <select id="getById" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_permission
+        WHERE id = #{id}
+    </select>
+
+</mapper>

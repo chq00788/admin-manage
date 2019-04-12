@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chq.project.admin.system.dao.RoleDao">
+
+    <sql id="baseColumn">
+        id,
+        role_code,
+        role_name,
+        is_usable,
+        is_delete
+    </sql>
+
+    <resultMap id="baseResultMap" type="com.chq.project.admin.system.model.RoleModel">
+            <id property="id" column="id"/>
+            <result property="roleCode" column="role_code"/>
+            <result property="roleName" column="role_name"/>
+            <result property="isUsable" column="is_usable"/>
+            <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <sql id="selectiveWhere">
+        <where>
+
+        </where>
+    </sql>
+
+
+    <select id="selectList" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_role
+        <include refid="selectiveWhere"/>
+        ORDER BY ${sortCode} ${sortRole}
+    </select>
+
+    <insert id="insert" parameterType="com.chq.project.admin.system.model.RoleModel">
+        INSERT INTO t_system_role(
+            role_code,
+            role_name,
+            is_usable,
+            is_delete
+        )VALUES(
+            #{roleCode},
+            #{roleName},
+            #{isUsable},
+            #{isDelete}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.chq.project.admin.system.model.RoleModel">
+        UPDATE t_system_role
+        <set>
+            <if test="roleCode != null and roleCode !=''  ">
+            role_code = #{roleCode},
+            </if>
+            <if test="roleName != null and roleName !=''  ">
+            role_name = #{roleName},
+            </if>
+            <if test="isUsable != null and isUsable !=''  ">
+            is_usable = #{isUsable},
+            </if>
+            <if test="isDelete != null and isDelete !=''  ">
+            is_delete = #{isDelete},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="integer">
+        DELETE FROM t_system_role
+        WHERE id = #{id}
+    </delete>
+
+    <select id="getById" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_role
+        WHERE id = #{id}
+    </select>
+
+</mapper>

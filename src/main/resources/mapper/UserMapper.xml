@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chq.project.admin.system.dao.UserDao">
+
+    <sql id="baseColumn">
+        id,
+        username,
+        real_name,
+        user_type,
+        salt,
+        is_usable,
+        is_delete
+    </sql>
+
+    <resultMap id="baseResultMap" type="com.chq.project.admin.system.model.UserModel">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="real_name"/>
+        <result property="userType" column="user_type"/>
+        <result property="salt" column="salt"/>
+        <result property="isUsable" column="is_usable"/>
+        <result property="isDelete" column="is_delete"/>
+    </resultMap>
+
+    <sql id="selectiveWhere">
+        <where>
+            <if test="username != null and username !=''  ">
+                and username = #{username}
+            </if>
+            <if test="realName != null and realName !=''  ">
+                and real_name = LIKE CONCAT('%',#{realName},'%')
+            </if>
+            <if test="userType != null">
+                and user_type = #{userType}
+            </if>
+            <if test="1==1">
+                and is_delete = 0
+            </if>
+            <if test="isUsable != null and isUsable != ''">
+                and is_usable = #{isUsable}
+            </if>
+        </where>
+    </sql>
+
+
+    <select id="selectList" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_user
+        <include refid="selectiveWhere"/>
+        ORDER BY ${sortCode} ${sortRole}
+    </select>
+
+    <insert id="insert" parameterType="com.chq.project.admin.system.model.UserModel" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_system_user(
+            username,
+            password,
+            real_name,
+            user_type,
+            salt,
+            is_usable,
+            is_delete
+        )VALUES(
+            #{username},
+            #{password},
+            #{realName},
+            #{userType},
+            #{salt},
+            #{isUsable},
+            #{isDelete}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.chq.project.admin.system.model.UserModel">
+        UPDATE t_system_user
+        <set>
+            <if test="username != null and username !=''  ">
+                username = #{username},
+            </if>
+            <if test="password != null and password !=''  ">
+                password = #{password},
+            </if>
+            <if test="realName != null and realName !=''  ">
+                real_name = #{realName},
+            </if>
+            <if test="userType != null and userType !=''  ">
+                user_type = #{userType},
+            </if>
+            <if test="salt != null and salt !=''  ">
+                salt = #{salt},
+            </if>
+            <if test="isUsable != null and isUsable !=''  ">
+                is_usable = #{isUsable},
+            </if>
+            <if test="isDelete != null and isDelete !=''  ">
+                is_delete = #{isDelete},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="integer">
+        DELETE FROM t_system_user
+        WHERE id = #{id}
+    </delete>
+
+    <select id="getById" resultMap="baseResultMap">
+        SELECT
+        <include refid="baseColumn"/>
+        FROM t_system_user
+        WHERE id = #{id}
+    </select>
+
+    <insert id="saveUserRole">
+        insert into t_system_user_role(
+        user_id,
+        role_id
+        )values (
+        #{userId},
+        #{roleId}
+        )
+    </insert>
+
+
+    <resultMap id="permResultMap" type="com.chq.project.admin.system.model.UserModel">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="real_name"/>
+        <result property="userType" column="user_type"/>
+        <result property="salt" column="salt"/>
+        <result property="isUsable" column="is_usable"/>
+        <result property="isDelete" column="is_delete"/>
+        <collection property="roleList" ofType="com.chq.project.admin.system.model.RoleModel">
+            <id property="id" column="role_id"/>
+            <result property="roleCode" column="role_code"/>
+            <result property="roleName" column="role_name"/>
+            <result property="isUsable" column="is_usable"/>
+            <result property="isDelete" column="is_delete"/>
+            <collection property="permissionList" ofType="com.chq.project.admin.system.model.PermissionModel">
+                <id property="id" column="perm_id"/>
+                <result property="permName" column="perm_name"/>
+                <result property="permCode" column="perm_code"/>
+                <result property="permType" column="perm_type"/>
+                <result property="permUrl" column="perm_url"/>
+                <result property="permSort" column="perm_sort"/>
+                <result property="permPid" column="perm_pid"/>
+                <result property="permIcon" column="perm_icon"/>
+                <result property="isUsable" column="is_usable"/>
+                <result property="isDelete" column="is_delete"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getByUsername" resultMap="permResultMap">
+        SELECT
+        u.id,
+        u.username,
+        u.password,
+        u.real_name,
+        u.user_type,
+        u.salt,
+        u.is_usable,
+        u.is_delete,
+        r.id role_id,
+        r.role_code,
+        r.role_name,
+        p.id perm_id,
+        p.perm_name,
+        p.perm_code,
+        p.perm_type,
+        p.perm_url,
+        p.perm_sort,
+        p.perm_pid,
+        p.perm_icon
+        FROM t_system_user u
+        left join t_system_user_role ur on  u.id = ur.user_id
+        left join t_system_role r on ur.role_id = r.id
+        left join t_system_role_perm rp on rp.role_id = r.id
+        left join t_system_permission p on rp.perm_id = p.id
+        WHERE username = #{username}
+        and u.is_delete = 0
+        and r.is_usable = 1 and r.is_delete = 0
+        and p.is_usable = 1 and p.is_delete = 0
+    </select>
+
+    <select id="getMenusByUserId" resultMap="permResultMap">
+        SELECT
+        u.id,
+        u.username,
+        u.password,
+        u.real_name,
+        u.user_type,
+        u.salt,
+        u.is_usable,
+        u.is_delete,
+        r.id role_id,
+        r.role_code,
+        r.role_name,
+        p.id perm_id,
+        p.perm_name,
+        p.perm_code,
+        p.perm_type,
+        p.perm_url,
+        p.perm_sort,
+        p.perm_pid,
+        p.perm_icon
+        FROM t_system_user u
+        left join t_system_user_role ur on  u.id = ur.user_id
+        left join t_system_role r on ur.role_id = r.id
+        left join t_system_role_perm rp on rp.role_id = r.id
+        left join t_system_permission p on rp.perm_id = p.id
+        WHERE u.id = #{id}
+        and u.is_delete = 0
+        and r.is_usable = 1 and r.is_delete = 0
+        and p.is_usable = 1 and p.is_delete = 0
+        and p.perm_type = 1
+    </select>
+
+    <select id="getMenusByUsername" resultMap="permResultMap">
+        SELECT
+        u.id,
+        u.username,
+        u.password,
+        u.real_name,
+        u.user_type,
+        u.salt,
+        u.is_usable,
+        u.is_delete,
+        r.id role_id,
+        r.role_code,
+        r.role_name,
+        p.id perm_id,
+        p.perm_name,
+        p.perm_code,
+        p.perm_type,
+        p.perm_url,
+        p.perm_sort,
+        p.perm_pid,
+        p.perm_icon
+        FROM t_system_user u
+        left join t_system_user_role ur on  u.id = ur.user_id
+        left join t_system_role r on ur.role_id = r.id
+        left join t_system_role_perm rp on rp.role_id = r.id
+        left join t_system_permission p on rp.perm_id = p.id
+        WHERE u.username = #{username}
+        and u.is_delete = 0
+        and r.is_usable = 1 and r.is_delete = 0
+        and p.is_usable = 1 and p.is_delete = 0
+        and p.perm_type in (1,2)
+    </select>
+
+</mapper>
