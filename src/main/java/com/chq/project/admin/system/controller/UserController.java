@@ -1,6 +1,7 @@
 package com.chq.project.admin.system.controller;
 
 import com.chq.project.admin.common.entity.Response;
+import com.chq.project.admin.common.utils.JwtUtil;
 import com.chq.project.admin.common.utils.SearchUtil;
 import com.chq.project.admin.system.model.PermissionModel;
 import com.chq.project.admin.system.model.UserModel;
@@ -130,6 +131,22 @@ public class UserController {
         Response<UserModel> response = new Response<>();
         try {
             UserModel model = userService.getById(id);
+            response.setResult(model);
+        } catch (Exception e) {
+            log.error("查询用户管理信息异常！原因：{}", e.getStackTrace());
+            e.printStackTrace();
+            response.setError("查询失败");
+        }
+        return response;
+    }
+
+    @ApiOperation(value = "根据token查询信息", notes = "根据token查询信息", httpMethod = "GET")
+    @RequestMapping(value = "/getByToken")
+    public Response<UserModel> getByToken(@RequestParam(value = "token") String token) {
+        Response<UserModel> response = new Response<>();
+        try {
+            String username = JwtUtil.getUsername(token);
+            UserModel model = userService.getByUsername(username);
             response.setResult(model);
         } catch (Exception e) {
             log.error("查询用户管理信息异常！原因：{}", e.getStackTrace());

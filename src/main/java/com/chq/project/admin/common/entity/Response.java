@@ -40,6 +40,7 @@ public class Response<T> implements Serializable {
 
     public void setError(String error) {
         this.success = false;
+        this.code = 500;
         this.error = error;
     }
 

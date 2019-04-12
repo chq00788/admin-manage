@@ -26,6 +26,9 @@ public class UserModel {
     @ApiModelProperty(value = "姓名")
     private String realName;
 
+    @ApiModelProperty(value = "头像")
+    private String avatar = "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif";
+
     @ApiModelProperty(value = "用户类型(0:管理员1:用户)", example = "123")
     private Integer userType;
 
@@ -137,5 +140,13 @@ public class UserModel {
 
     public void setRoleList(List<RoleModel> roleList) {
         this.roleList = roleList;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

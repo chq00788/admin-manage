@@ -2,12 +2,10 @@ package com.chq.project.admin.system.controller;
 
 
 import com.chq.project.admin.common.entity.Response;
-import com.chq.project.admin.common.entity.ResponseBean;
 import com.chq.project.admin.common.utils.JwtUtil;
 import com.chq.project.admin.system.model.UserModel;
 import com.chq.project.admin.system.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2019/4/2
  */
 @RestController
+@RequestMapping("/auth")
 public class LoginController {
 
     @Autowired
@@ -35,14 +34,26 @@ public class LoginController {
         Response<String> result = new Response<>();
         String realPassword = userService.getPassword(user.getUsername());
         if (realPassword == null) {
-            result.setError("用户名错误");
+            result.setError("用户名或密码错误");
         } else if (!realPassword.equals(user.getPassword())) {
-            result.setError("密码错误");
+            result.setError("用户名或密码错误");
         } else {
             String token = JwtUtil.sign(user.getUsername(), realPassword);
             response.setHeader("auth-token", token);
-            result.setResult("登录成功");
+            result.setResult(token);
         }
+        return result;
+    }
+
+    /**
+     * 用户登出
+     *
+     * @return
+     */
+    @PostMapping("/logout")
+    public Response<String> logout() {
+        Response<String> result = new Response<>();
+        result.setResult("登出成功");
         return result;
     }
 
